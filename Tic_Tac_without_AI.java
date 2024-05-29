@@ -144,8 +144,7 @@ player) ||
                 printBoard(board); 
  
                  
-                System.out.print("Enter row (0, 1, or 2) and column (0, 1, or 
-2): "); 
+                System.out.print("Enter row (0, 1, or 2) and column (0, 1, or 2): "); 
                 row = scanner.nextInt(); 
                 col = scanner.nextInt(); 
  
