@@ -1,88 +1,190 @@
-import java.util.*;
-
-public class NonAI {
-    private int[] board = new int[9];
-    private int[] magicSquare = { 2, 7, 6, 9, 5, 1, 4, 3, 8 };
-    private Random random = new Random();
-
-    public void playGame() {
-        for (int i = 0; i < 9; i++) {
-            if (i % 2 == 0) {
-                System.out.println("Computer's move: ");
-                computerMove();
-            } else {
-                humanMove();
-                System.out.println("User's move: ");
-            }
-            printBoard();
-            if (checkWin()) {
-                System.out.println("Game Over. Winner: " + (i % 2 == 0 ? "Computer" : "Human"));
-                return;
-            }
-        }
-        System.out.println("Game Over. It's a draw.");
-    }
-
-    private void computerMove() {
-        int move = findBestMove(1);
-        if (move == -1)
-            move = findBestMove(-1);
-        if (move == -1) {
-            do {
-                move = random.nextInt(9);
-            } while (board[move] != 0);
-        }
-        board[move] = 1;
-    }
-
-    private int findBestMove(int player) {
-        for (int i = 0; i < 9; i++) {
-            if (board[i] == 0) {
-                int sum = 0;
-                for (int j = 0; j < 9; j++) {
-                    if (board[j] == player)
-                        sum += magicSquare[j];
-                }
-                if (15 - sum == magicSquare[i])
-                    return i;
-            }
-        }
-        return -1;
-    }
-
-    private void humanMove() {
-        Scanner scanner = new Scanner(System.in);
-        int move;
-        do {
-            System.out.println("Enter your move (1-9): ");
-            move = scanner.nextInt() - 1;
-        } while (move < 0 || move >= 9 || board[move] != 0);
-        board[move] = -1;
-    }
-
-    private boolean checkWin() {
-        int[][] lines = {
-                { 0, 1, 2 }, { 3, 4, 5 }, { 6, 7, 8 }, // rows
-                { 0, 3, 6 }, { 1, 4, 7 }, { 2, 5, 8 }, // columns
-                { 0, 4, 8 }, { 2, 4, 6 } // diagonals
-        };
-        for (int[] line : lines) {
-            if (board[line[0]] != 0 && board[line[0]] == board[line[1]] && board[line[0]] == board[line[2]]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void printBoard() {
-        for (int i = 0; i < 9; i++) {
-            System.out.print(board[i] == 1 ? "X " : board[i] == -1 ? "O " : (i + 1) + " ");
-            if (i % 3 == 2)
-                System.out.println();
-        }
-    }
-
-    public static void main(String[] args) {
-        new NonAI().playGame();
-    }
-}
+import java.util.Scanner; 
+ 
+public class NONAI_tictactoe 
+ { 
+    private static final int SIZE = 3; 
+ 
+    private static void printBoard(char[][] board) { 
+        System.out.println("-------------"); 
+        for (int i = 0; i < SIZE; i++) { 
+            System.out.print("| "); 
+            for (int j = 0; j < SIZE; j++) { 
+                System.out.print(board[i][j] + " | "); 
+            } 
+            System.out.println("\n-------------"); 
+        } 
+    } 
+ 
+   
+    private static int isGameOver(char[][] board, char player) { 
+         
+        for (int i = 0; i < SIZE; i++) { 
+            if ((board[i][0] == player && board[i][1] == player && board[i][2] 
+== player) || 
+                    (board[0][i] == player && board[1][i] == player && 
+board[2][i] == player)) { 
+                return 1; // Player wins 
+            } 
+        } 
+ 
+         
+        if ((board[0][0] == player && board[1][1] == player && board[2][2] == 
+player) || 
+                (board[0][2] == player && board[1][1] == player && board[2][0] 
+== player)) { 
+            return 1; // Player wins 
+        } 
+ 
+        
+        for (int i = 0; i < SIZE; i++) { 
+            for (int j = 0; j < SIZE; j++) { 
+                if (board[i][j] == ' ') 
+                    return 0; // The game is not over yet 
+            } 
+        } 
+ 
+        return -1; // It's a draw 
+    } 
+ 
+ 
+ 
+     
+    private static int isValidMove(char[][] board, int row, int col) { 
+        if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) 
+            return 0;  
+        if (board[row][col] != ' ') 
+            return 0;  
+        return 1;  
+    } 
+ 
+   
+    private static void computerMove(char[][] board, char player) { 
+        
+        for (int i = 0; i < SIZE; i++) { 
+            for (int j = 0; j < SIZE; j++) { 
+                if (board[i][j] == ' ') { 
+                    board[i][j] = player; 
+                    if (isGameOver(board, player)==1) { 
+                        return;  
+                    } 
+                    board[i][j] = ' '; 
+                } 
+            } 
+        } 
+ 
+        
+        char opponent = (player == 'X') ? 'O' : 'X'; 
+        for (int i = 0; i < SIZE; i++) { 
+            for (int j = 0; j < SIZE; j++) { 
+                if (board[i][j] == ' ') { 
+                    board[i][j] = opponent; 
+                    if (isGameOver(board, opponent)==1) { 
+                        board[i][j] = player;  
+                        return; 
+                    } 
+                    board[i][j] = ' ';  
+                } 
+            } 
+        } 
+ 
+        // Play in the center if available 
+        if (board[1][1] == ' ') { 
+            board[1][1] = player; 
+            return; 
+        } 
+ 
+        // Play in a corner if available 
+        int[][] corners = {{0, 0}, {0, 2}, {2, 0}, {2, 2}}; 
+        for (int i = 0; i < 4; i++) { 
+            int row = corners[i][0]; 
+ 
+ 
+            int col = corners[i][1]; 
+            if (board[row][col] == ' ') { 
+                board[row][col] = player; 
+                return; 
+            } 
+        } 
+ 
+        // Play in any available edge 
+        int[][] edges = {{0, 1}, {1, 0}, {1, 2}, {2, 1}}; 
+        for (int i = 0; i < 4; i++) { 
+            int row = edges[i][0]; 
+            int col = edges[i][1]; 
+            if (board[row][col] == ' ') { 
+                board[row][col] = player; 
+                return; 
+            } 
+        } 
+    } 
+ 
+    public static void main(String[] args) { 
+        char[][] board = { 
+                {' ', ' ', ' '}, 
+                {' ', ' ', ' '}, 
+                {' ', ' ', ' '} 
+        }; 
+ 
+        System.out.println("TIC-TAC-TOE"); 
+ 
+        Scanner scanner = new Scanner(System.in); 
+ 
+        char currentPlayer; 
+        System.out.print("Who plays first? (Human(h)/Computer(c): "); 
+        currentPlayer = scanner.next().charAt(0); 
+ 
+        int row, col, moveCount = 0; 
+        int gameOver = 0; 
+ 
+        while (gameOver == 0) { 
+            System.out.println(); 
+ 
+            if (currentPlayer == 'h') { 
+                System.out.println("Your turn (X):"); 
+                printBoard(board); 
+ 
+                 
+                System.out.print("Enter row (0, 1, or 2) and column (0, 1, or 2): "); 
+                row = scanner.nextInt(); 
+                col = scanner.nextInt(); 
+ 
+ 
+ 
+                if (isValidMove(board, row, col) == 1) { 
+                    board[row][col] = 'X'; 
+                    moveCount++; 
+                    gameOver = isGameOver(board, 'X'); 
+                    currentPlayer = 'c';  
+                } else { 
+                    System.out.println("Invalid move. Try again."); 
+                } 
+            } else { 
+                System.out.println("Computer's turn (O):"); 
+                computerMove(board, 'O');  
+                moveCount++; 
+                printBoard(board); 
+                gameOver = isGameOver(board, 'O'); 
+                currentPlayer = 'h';  
+            } 
+        } 
+ 
+        if (isGameOver(board, 'X')==1) { 
+            printBoard(board); 
+            System.out.println("Player X wins!"); 
+        }  
+        else if (isGameOver(board, 'O')==1) { 
+            printBoard(board); 
+            System.out.println("Player O wins!"); 
+        }else { 
+            printBoard(board); 
+            System.out.println("It's a draw!"); 
+        } 
+ 
+        scanner.close(); 
+    } 
+} 
+  
+  
+  
+  
+ 
